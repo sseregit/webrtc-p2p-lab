@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function playVideo() {
+            const fileName = document.getElementById("playFileName").value;
+            const video = document.getElementById("videoPlayer");
+
+            if (fileName) {
+                video.src = `/video?fileName=${}`;
+                video.load();
+                video.play();
+            } else {
+                alert("enter a file name");
+            }
+        }
+    </script>
+</head>
+<body>
+<form id="uploadForm" enctype="multipart/form-data" method="post" , action="/upload">
+    <label for="file"> MP4 File </label>
+    <input type="file" name="file" id="file" required/>
+    <br/>
+    <label for="fileName">Save As FileName</label>
+    <input type="text" name="fileName" id="fileName" placeholder="example.mp4">
+    <br/>
+    <button type="submit">Upload</button>
+</form>
+<h2>Playback</h2>
+<form id="playbackForm">
+    <lable for="playFileName">FileName</lable>
+    <input type="text" name="playFileName" id="playFileName" placeholder="example.mp4" required/>
+    <br/>
+    <button type="submit" onclick="playVideo()">Play Video</button>
+</form>
+<video id="videoPlayer" controls>
+
+</video>
+</body>
+</html>
