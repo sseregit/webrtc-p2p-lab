@@ -47,7 +47,7 @@
 
             mediaRecorder.onstop = () => {
                 const b = new Blob(recordedChunks, {type: "video/webm"});
-
+                // uploadVideo(b)
                 recordedChunks = [];
             };
         } catch (err) {
@@ -55,6 +55,53 @@
         }
 
     }
+
+    async function uploadVideo(blob) {
+        const formData = new FormData();
+        formData.append("video", blob, "video.webm");
+
+        try {
+            const res = await fetch("/upload", {
+                method: "POST",
+                body: formData,
+            })
+
+            if (res.ok) {
+                const fileBlob = await res.blob();
+                const downloadUrl = URL.createObjectURL(fileBlob);
+                const a = document.createElement("a");
+
+                a.href = downloadUrl;
+                a.download = "recored_video.mp4";
+                a.click();
+            } else {
+                console.log("Failed to upload video", err)
+            }
+        } catch (err) {
+            console.log("Failed to upload video", err)
+        }
+    }
+
+    document.getElementById("startRecording").addEventListener("click", () => {
+        if (mediaRecorder && mediaRecorder.state === "inactive") {
+            videoElement.style.display = "block";
+
+            mediaRecorder.start();
+            console.log("Started recording");
+            document.getElementById("startRecording").disabled = true;
+            document.getElementById("stopRecording").disabled = false;
+        }
+    });
+    document.getElementById("stopRecording").addEventListener("click", () => {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            console.log("Stoped recording");
+            document.getElementById("startRecording").disabled = false;
+            document.getElementById("stopRecording").disabled = true;
+
+            videoElement.style.display = "none";
+        }
+    });
 </script>
 </body>
 </html>
