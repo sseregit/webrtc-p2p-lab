@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Webcam Recording</title>
+    <style>
+        #myVideo {
+            width: 640px;
+            height: 480px;
+            border: 1px solid black;
+            display: none;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Webcam Recording</h1>
+
+<video id="myVideo" width="640" height="640" autoplay></video>
+<button id="startRecording">녹화 시작</button>
+<button id="stopRecording">녹화 중지</button>
+<script>
+    const videoElement = document.getElementById("myVideo");
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    async function startCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true,
+            });
+
+            videoElement.srcObject = stream;
+
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data)
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const b = new Blob(recordedChunks, {type: "video/webm"});
+
+                recordedChunks = [];
+            };
+        } catch (err) {
+            console.log("err occurred during recording", err)
+        }
+
+    }
+</script>
+</body>
+</html>
