@@ -49,7 +49,7 @@ func main() {
 
 		for {
 			n, err := file.Read(buffer)
-			if err != nil {
+			if err != nil && err != io.EOF {
 				http.Error(writer, "Failed to read destination", http.StatusInternalServerError)
 				return
 			}
@@ -71,12 +71,14 @@ func main() {
 
 	http.HandleFunc("/video", func(writer http.ResponseWriter, request *http.Request) {
 		fileName := request.URL.Query().Get("fileName")
+
 		if fileName == "" {
 			http.Error(writer, "Invalid file name", http.StatusBadRequest)
+			return
 		}
 
-		filepath := filepath.Join(uploadDir, fileName)
-		file, err := os.Open(filepath)
+		joinFilepath := filepath.Join(uploadDir, fileName)
+		file, err := os.Open(joinFilepath)
 		if err != nil {
 			http.Error(writer, "Invalid file", http.StatusInternalServerError)
 			return
@@ -86,7 +88,7 @@ func main() {
 
 		rangeHeader := request.Header.Get("Range")
 		if rangeHeader == "" {
-			http.ServeFile(writer, request, filepath)
+			http.ServeFile(writer, request, joinFilepath)
 			return
 		}
 
@@ -113,9 +115,12 @@ func main() {
 		writer.Header().Set("Content-Type", "video/mp4")
 		writer.Header().Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
 		writer.Header().Set("Accept-Ranges", "bytes")
+		writer.WriteHeader(http.StatusPartialContent)
 
 		file.Seek(start, io.SeekStart)
 		io.CopyN(writer, file, end-start+1)
-
 	})
+
+	fmt.Println("Server Start")
+	http.ListenAndServe(":8080", nil)
 }
