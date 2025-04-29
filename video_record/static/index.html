@@ -9,7 +9,6 @@
             width: 640px;
             height: 480px;
             border: 1px solid black;
-            display: none;
         }
 
         button {
@@ -19,8 +18,9 @@
 </head>
 <body>
 <h1>Webcam Recording</h1>
-
-<video id="myVideo" width="640" height="640" autoplay></video>
+<div>
+    <video id="myVideo" width="640" height="640" autoplay></video>
+</div>
 <button id="startRecording">녹화 시작</button>
 <button id="stopRecording">녹화 중지</button>
 <script>
@@ -84,8 +84,6 @@
 
     document.getElementById("startRecording").addEventListener("click", () => {
         if (mediaRecorder && mediaRecorder.state === "inactive") {
-            videoElement.style.display = "block";
-
             mediaRecorder.start();
             console.log("Started recording");
             document.getElementById("startRecording").disabled = true;
@@ -98,10 +96,9 @@
             console.log("Stoped recording");
             document.getElementById("startRecording").disabled = false;
             document.getElementById("stopRecording").disabled = true;
-
-            videoElement.style.display = "none";
         }
     });
+    window.onload = startCamera;
 </script>
 </body>
 </html>
